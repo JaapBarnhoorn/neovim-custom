@@ -1,9 +1,15 @@
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 vim.cmd("let g:netrw_liststyle = 3")
 
 local opt = vim.opt
 
 opt.relativenumber = true
 opt.number = true
+
+-- Enable mouse mode, can be useful for resizing splits for example!
+vim.opt.mouse = "a"
 
 -- tabs & indentation
 opt.tabstop = 2 -- 2 spaces for tabs (prettier default)
@@ -25,6 +31,16 @@ opt.termguicolors = true
 opt.background = "dark" -- colorschemes that can be light or dark will be made dark
 opt.signcolumn = "yes" -- show sign column so that text doesn't shift
 
+-- Decrease update time
+opt.updatetime = 250
+
+-- Decrease mapped sequence wait time
+-- Displays which-key popup sooner
+opt.timeoutlen = 300
+
+-- Minimal number of screen lines to keep above and below the cursor.
+opt.scrolloff = 10
+
 -- backspace
 opt.backspace = "indent,eol,start" -- allow backspace on indent, end of line or insert mode start position
 
@@ -37,3 +53,5 @@ opt.splitbelow = true -- split horizontal window to the bottom
 
 -- turn off swapfile
 opt.swapfile = false
+
+vim.g.lazygit_config = true

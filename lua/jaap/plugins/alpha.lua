@@ -1,36 +1,34 @@
 return {
   "goolord/alpha-nvim",
-  event = "VimEnter",
   config = function()
     local alpha = require("alpha")
     local dashboard = require("alpha.themes.dashboard")
-
-    -- Set header
     dashboard.section.header.val = {
-      "                                                     ",
-      "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ",
-      "  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ",
-      "  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ",
-      "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ",
-      "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ",
-      "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ",
-      "                                                     ",
+      [[                               __                ]],
+      [[  ___     ___    ___   __  __ /\_\    ___ ___    ]],
+      [[ / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\  ]],
+      [[/\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \ ]],
+      [[\ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\]],
+      [[ \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/]],
     }
-
-    -- Set menu
     dashboard.section.buttons.val = {
-      dashboard.button("e", "  > New File", "<cmd>ene<CR>"),
-      dashboard.button("SPC ee", "  > Toggle file explorer", "<cmd>NvimTreeToggle<CR>"),
-      dashboard.button("SPC ff", "󰱼  > Find File", "<cmd>Telescope find_files<CR>"),
-      dashboard.button("SPC fs", "  > Find Word", "<cmd>Telescope live_grep<CR>"),
-      dashboard.button("SPC wr", "󰁯  > Restore Session For Current Directory", "<cmd>SessionRestore<CR>"),
-      dashboard.button("q", "  > Quit NVIM", "<cmd>qa<CR>"),
+      dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+      dashboard.button("SPC e e", "  File explorer"),
+      dashboard.button("SPC s f", "󰈞  Find file"),
+      dashboard.button("SPC s r", "󰊄  Recently opened files"),
+      dashboard.button("SPC s g", "󰈬  Find word"),
+      dashboard.button("SPC w r", "󰁯  Restore Session For Current Directory", "<cmd>SessionRestore<CR>"),
+      dashboard.button("q", "󰅚  Quit NVIM", ":qa<CR>"),
     }
+    local handle = io.popen("fortune")
+    local fortune = handle:read("*a")
+    handle:close()
+    dashboard.section.footer.val = fortune
 
-    -- Send config to alpha
-    alpha.setup(dashboard.opts)
+    dashboard.config.opts.noautocmd = true
 
-    -- Disable folding on alpha buffer
-    vim.cmd([[autocmd FileType alpha setlocal nofoldenable]])
+    vim.cmd([[autocmd User AlphaReady echo 'ready']])
+
+    alpha.setup(dashboard.config)
   end,
 }
