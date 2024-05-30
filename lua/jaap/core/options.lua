@@ -1,3 +1,4 @@
+vim.g.colors_name = "dark-sage"
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
@@ -53,5 +54,7 @@ opt.splitbelow = true -- split horizontal window to the bottom
 
 -- turn off swapfile
 opt.swapfile = false
+-- set undofile to save undo history to a file
+opt.undofile = true
 
 vim.g.lazygit_config = true

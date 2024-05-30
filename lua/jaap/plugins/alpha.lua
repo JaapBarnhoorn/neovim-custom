@@ -13,11 +13,12 @@ return {
     }
     dashboard.section.buttons.val = {
       dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-      dashboard.button("SPC e e", "  File explorer"),
+      dashboard.button("SPC e", "  File explorer"),
       dashboard.button("SPC s f", "󰈞  Find file"),
       dashboard.button("SPC s r", "󰊄  Recently opened files"),
       dashboard.button("SPC s g", "󰈬  Find word"),
       dashboard.button("SPC w r", "󰁯  Restore Session For Current Directory", "<cmd>SessionRestore<CR>"),
+      dashboard.button("SPC s c", "  Explore config files"),
       dashboard.button("q", "󰅚  Quit NVIM", ":qa<CR>"),
     }
     local handle = io.popen("fortune")

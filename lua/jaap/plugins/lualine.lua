@@ -1,70 +1,97 @@
+-- require custom extensions
+local extensions = require("jaap.extensions.lualine")
+
 return {
   "nvim-lualine/lualine.nvim",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
+  dependencies = {
+    "folke/noice.nvim",
+    "nvim-tree/nvim-web-devicons",
+  },
   config = function()
-    local lualine = require("lualine")
-    local lazy_status = require("lazy.status") -- to configure lazy pending updates count
+    -- require noice
+    local noice = require("noice")
 
-    local colors = {
-      blue = "#65D1FF",
-      green = "#3EFFDC",
-      violet = "#FF61EF",
-      yellow = "#FFDA7B",
-      red = "#FF4A4A",
-      fg = "#c3ccdc",
-      bg = "#112638",
-      inactive_bg = "#2c3043",
-    }
+    -- require lazy extensions
+    local lazy_status = require("lazy.status")
 
-    local my_lualine_theme = {
-      normal = {
-        a = { bg = colors.blue, fg = colors.bg, gui = "bold" },
-        b = { bg = colors.bg, fg = colors.fg },
-        c = { bg = colors.bg, fg = colors.fg },
-      },
-      insert = {
-        a = { bg = colors.green, fg = colors.bg, gui = "bold" },
-        b = { bg = colors.bg, fg = colors.fg },
-        c = { bg = colors.bg, fg = colors.fg },
-      },
-      visual = {
-        a = { bg = colors.violet, fg = colors.bg, gui = "bold" },
-        b = { bg = colors.bg, fg = colors.fg },
-        c = { bg = colors.bg, fg = colors.fg },
-      },
-      command = {
-        a = { bg = colors.yellow, fg = colors.bg, gui = "bold" },
-        b = { bg = colors.bg, fg = colors.fg },
-        c = { bg = colors.bg, fg = colors.fg },
-      },
-      replace = {
-        a = { bg = colors.red, fg = colors.bg, gui = "bold" },
-        b = { bg = colors.bg, fg = colors.fg },
-        c = { bg = colors.bg, fg = colors.fg },
-      },
-      inactive = {
-        a = { bg = colors.inactive_bg, fg = colors.semilightgray, gui = "bold" },
-        b = { bg = colors.inactive_bg, fg = colors.semilightgray },
-        c = { bg = colors.inactive_bg, fg = colors.semilightgray },
-      },
-    }
-
-    -- configure lualine with modified theme
-    lualine.setup({
+    -- custom setup
+    require("lualine").setup({
       options = {
-        theme = my_lualine_theme,
+        theme = "auto",
+        globalstatus = true,
+        component_separators = { left = "", right = "" },
+        section_separators = { left = "", right = "" },
+        disabled_filetypes = { "dashboard", "packer", "help" },
+        ignore_focus = {}, -- add filetypes inside
       },
+      -- man:124 for sections doc
       sections = {
+        lualine_a = {
+          {
+            "branch",
+            icon = "",
+          },
+        }, -- disable vim mode viewer
+        lualine_b = {},
+        lualine_c = {
+          -- filetype icon
+          {
+            "filetype",
+            icon_only = true,
+            padding = { left = 2, right = 0 },
+            color = "_lualine_c_filetype",
+          },
+          -- filename
+          {
+            "filename",
+            file_status = true, -- display file status (read only, modified)
+            path = 1, -- 0: just name, 1: relative path, 2: absolute path, 3: absolute path with ~ as home directory
+            symbols = {
+              unnamed = "",
+              readonly = "",
+              modified = "",
+            },
+            padding = { left = 1 },
+            color = { gui = "bold" },
+          },
+        },
         lualine_x = {
           {
             lazy_status.updates,
             cond = lazy_status.has_updates,
-            color = { fg = "#ff9e64" },
           },
-          { "encoding" },
-          { "fileformat" },
-          { "filetype" },
+          -- number of changes in file
+          {
+            "diff",
+            colored = true,
+            padding = { right = 2 },
+            symbols = {
+              added = "+",
+              modified = "|",
+              removed = "-",
+            },
+          },
+          -- status like @recording
+          {
+            noice.api.statusline.mode.get,
+            cond = noice.api.statusline.mode.has,
+          },
         },
+        lualine_y = {},
+        lualine_z = { "location" },
+      },
+      extensions = {
+        "nvim-tree",
+        "toggleterm",
+        "mason",
+        "fzf",
+        "quickfix",
+        "man",
+        "lazy",
+        -- custom extensions
+        extensions.telescope,
+        extensions.lspinfo,
+        extensions.btw,
       },
     })
   end,
