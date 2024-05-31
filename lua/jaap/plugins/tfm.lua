@@ -17,7 +17,7 @@ return {
       function()
         require("tfm").open("~/.config/nvim-custom")
       end,
-      desc = "[S]earch [Config] files",
+      desc = "[S]earch [C]onfig files",
     },
   },
 }
