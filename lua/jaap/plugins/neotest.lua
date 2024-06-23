@@ -5,20 +5,24 @@ return {
     "nvim-lua/plenary.nvim",
     "antoinemadec/FixCursorHold.nvim",
     "nvim-treesitter/nvim-treesitter",
-    "nvim-neotest/neotest-jest",
+    "JaapBarnhoorn/neotest-jest",
   },
-  opts = {
-    adapters = {
-      ["neotest-jest"] = {
-        jestCommand = "npm test --",
-        jestConfigFile = "custom.jest.config.ts",
-        env = { CI = true },
-        cwd = function(path)
-          return vim.fn.getcwd()
-        end,
+  config = function()
+    require("neotest").setup({
+      adapters = {
+        require("neotest-jest")({
+          jestCommand = "pnpm exec stencil test --spec",
+          env = { CI = true },
+          cwd = function(file)
+            if string.find(file, "/packages/") or string.find(file, "/apps/") then
+              return string.match(file, "(.-/[^/]+/)src")
+            end
+            return vim.fn.getcwd()
+          end,
+        }),
       },
-    },
-  },
+    })
+  end,
   keys = {
     {
       "<leader>tt",
@@ -75,6 +79,18 @@ return {
         require("neotest").run.stop()
       end,
       desc = "Stop",
+    },
+    {
+      "[r",
+      function()
+        require("neotest").jump.prev({ status = "failed" })
+      end,
+    },
+    {
+      "]r",
+      function()
+        require("neotest").jump.next({ status = "failed" })
+      end,
     },
   },
 }
