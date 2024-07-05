@@ -1,25 +1,28 @@
 return {
   {
+    -- 'Equilibris/nx.nvim',
     "Sewb21/nx.nvim",
 
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    },
+    config = function()
+      require("nx").setup({
+        nx_cmd_root = "pnpm exec nx",
+        read_init = true,
+        command_runner = require("nx.command-runners").toggleterm_runner({
+          direction = "vertical",
+        }),
+      })
+    end,
 
-    opts = {
-      -- See below for config options
-      nx_cmd_root = "pnpm exec nx",
-    },
+    init = function()
+      local telescope = require("telescope")
+      telescope.load_extension("nx")
+    end,
 
-    -- Plugin will load when you use these keys
     keys = {
-      {
-        "<leader>wng",
-        function()
-          require("nx.generators").generators()
-        end,
-        desc = "nx actions",
-      },
+      { "<leader>nxg", "<cmd>Telescope nx generators<CR>", "Nx generators" },
+      { "<leader>nxx", "<cmd>Telescope nx actions<CR>", "Nx actions" },
+      { "<leader>nxa", "<cmd>Telescope nx affected<CR>", "Nx affected" },
+      { "<leader>nxr", "<cmd>Telescope nx run_many<CR>", "Nx run many" },
     },
   },
 }

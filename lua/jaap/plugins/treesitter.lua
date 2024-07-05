@@ -29,6 +29,7 @@ return {
         "yaml",
         "html",
         "css",
+        "scss",
         "prisma",
         "markdown",
         "markdown_inline",
@@ -42,6 +43,7 @@ return {
         "query",
         "vimdoc",
         "c",
+        "angular",
       },
       incremental_selection = {
         enable = true,
@@ -52,6 +54,13 @@ return {
           node_decremental = "<bs>",
         },
       },
+    })
+
+    vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+      pattern = { "*.component.html", "*.container.html" },
+      callback = function()
+        vim.treesitter.start(nil, "angular")
+      end,
     })
   end,
 }

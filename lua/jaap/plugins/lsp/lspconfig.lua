@@ -5,6 +5,7 @@ return {
     "hrsh7th/cmp-nvim-lsp",
     { "antosha417/nvim-lsp-file-operations", config = true },
     { "folke/neodev.nvim", opts = {} },
+    { "yioneko/nvim-vtsls" },
   },
   config = function()
     -- import lspconfig plugin
@@ -17,6 +18,39 @@ return {
     local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
     local keymap = vim.keymap -- for conciseness
+
+    local inlayHints = {
+      parameterNames = { enabled = "literals" },
+      parameterTypes = { enabled = true },
+      variableTypes = { enabled = true },
+      propertyDeclarationTypes = { enabled = true },
+      functionLikeReturnTypes = { enabled = true },
+      enumMemberValues = { enabled = true },
+    }
+
+    --- Gets a path to a package in the Mason registry.
+    --- Prefer this to `get_package`, since the package might not always be
+    --- available yet and trigger errors.
+    ---@param pkg string
+    ---@param path? string
+    ---@param opts? { warn?: boolean }
+    local function get_pkg_path(pkg, path, opts)
+      pcall(require, "mason") -- make sure Mason is loaded. Will fail when generating docs
+      local root = vim.env.MASON or (vim.fn.stdpath("data") .. "/mason")
+      opts = opts or {}
+      opts.warn = opts.warn == nil and true or opts.warn
+      path = path or ""
+      local ret = root .. "/packages/" .. pkg .. "/" .. path
+      if opts.warn and not vim.loop.fs_stat(ret) and not require("lazy.core.config").headless() then
+        M.warn(
+          ("Mason package path not found for **%s**:\n- `%s`\nYou may need to force update the package."):format(
+            pkg,
+            path
+          )
+        )
+      end
+      return ret
+    end
 
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("UserLspConfig", {}),
@@ -64,6 +98,11 @@ return {
 
         opts.desc = "Restart LSP"
         keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
+
+        -- TODO: Only show when vtsls language server is active
+        keymap.set("n", "gvs", "<cmd>VtsExec source_actions<CR>", { desc = "[V]tsls [S]ource Actions" })
+        keymap.set("n", "gvd", "<cmd>VtsExec goto_source_definition<CR>", { desc = "[V]tsls source [D]efinition" })
+        keymap.set("n", "gvr", "<cmd>VtsExec rename_file<CR>", { desc = "[V]tsls [R]ename file" })
       end,
     })
 
@@ -83,6 +122,69 @@ return {
       function(server_name)
         lspconfig[server_name].setup({
           capabilities = capabilities,
+        })
+      end,
+      ["tsserver"] = function()
+        -- disable tsserver
+        return true
+      end,
+      ["vtsls"] = function()
+        require("lspconfig.configs").vtsls = require("vtsls").lspconfig
+        lspconfig.vtsls.setup({
+          capabilities = capabilities,
+          single_file_support = false,
+          settings = {
+            vtsls = {
+              experimental = {
+                enableProjectDiagnostics = true,
+                useVsCodeWatcher = true,
+              },
+              enableMoveToFileCodeAction = true,
+              autoUseWorkspaceTsdk = true,
+              tsserver = {
+                globalPlugins = {
+                  {
+                    name = "@angular/language-server",
+                    location = get_pkg_path("angular-language-server", "/node_modules/@angular/language-server"),
+                    enableForWorkspaceTypeScriptVersions = false,
+                  },
+                },
+              },
+            },
+            javascript = {
+              format = { enable = false },
+              inlayHints,
+            },
+            typescript = {
+              format = { enable = false },
+              implementationsCodeLens = { enabled = true },
+              inlayHints,
+              preferences = {
+                useAliasesForRenames = false,
+                preferTypeOnlyAutoImports = true,
+              },
+              tsserver = {
+                maxTsServerMemory = 8192,
+              },
+              referencesCodeLens = {
+                showOnAllFunctions = true,
+                enabled = true,
+              },
+              experimental = {
+                aiCodeActions = {
+                  missingFunctionDeclaration = true,
+                  extractType = true,
+                  inferAndAddTypes = true,
+                  extractFunction = true,
+                  extractConstant = true,
+                  classIncorrectlyImplementsInterface = true,
+                  classDoesntImplementInheritedAbstractMember = true,
+                  addNameToNamelessParameter = true,
+                },
+                enableProjectDiagnostics = true,
+              },
+            },
+          },
         })
       end,
       ["svelte"] = function()
